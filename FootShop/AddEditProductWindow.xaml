@@ -1,0 +1,87 @@
+﻿<Window x:Class="FootShop.AddEditProductWindow"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Добавление товара"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Width="650" Height="550"
+        FontFamily="Times New Roman">
+
+    <Grid Margin="10">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+
+            <Image x:Name="ProductImage"
+                   Width="200" Height="200"
+                   Stretch="UniformToFill"
+                   Margin="0 0 0 10"/>
+
+            <Button Content="Выбрать фото"
+                    Background="#00FA9A"
+                    Width="180" Height="35"
+                    Click="ChoosePhoto_Click"/>
+        </StackPanel>
+
+
+        <StackPanel Grid.Column="1" Margin="20 0 0 0">
+
+            <TextBlock Text="ID:"/>
+            <TextBox x:Name="IdBox" IsReadOnly="True"/>
+
+            <TextBlock Text="Артикул:" Margin="0 10 0 0"/>
+            <TextBox x:Name="ArticleBox"/>
+
+            <TextBlock Text="Наименование:" Margin="0 10 0 0"/>
+            <ComboBox x:Name="ProductNameBox"/>
+
+            <TextBlock Text="Категория:" Margin="0 10 0 0"/>
+            <ComboBox x:Name="CategoryBox"/>
+
+            <TextBlock Text="Производитель:" Margin="0 10 0 0"/>
+            <ComboBox x:Name="ManufacturerBox"/>
+
+            <TextBlock Text="Поставщик:" Margin="0 10 0 0"/>
+            <ComboBox x:Name="ProviderBox"/>
+
+            <TextBlock Text="Цена:" Margin="0 10 0 0"/>
+            <TextBox x:Name="PriceBox"/>
+
+            <TextBlock Text="Ед. изм.:" Margin="0 10 0 0"/>
+            <TextBox x:Name="UnitBox"/>
+
+            <TextBlock Text="Количество:" Margin="0 10 0 0"/>
+            <TextBox x:Name="QuantityBox"/>
+
+            <TextBlock Text="Скидка (%):" Margin="0 10 0 0"/>
+            <TextBox x:Name="DiscountBox"/>
+
+            <TextBlock Text="Описание:" Margin="0 10 0 0"/>
+            <TextBox x:Name="DescriptionBox"
+                     Height="80"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"/>
+        </StackPanel>
+
+
+        <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0 450 0 0">
+
+            <Button Content="Сохранить"
+                    Background="#00FA9A"
+                    Width="120" Margin="10"
+                    Click="Save_Click"/>
+
+            <Button Content="Отмена"
+                    Background="#CCCCCC"
+                    Width="120" Margin="10"
+                    Click="Cancel_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
