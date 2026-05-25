@@ -1,0 +1,238 @@
+0) в main window:         <Frame x:Name="MainFrame"/>
+
+1) умеем подключать бд
+бд - делаем в эксель всю бд. приводим к 3 нф. сохраняем как 97 год. импортируем настраиваем в ssms
+2) умеем делать контекст
+3) умеем делать read (на половину), add, update. delete
+
+========================================================================
+
+0) CRUD
+
+C:
+
+            bd.Users temp = new bd.Users();
+            //temp.Id = 1;
+            temp.Login = "logindfhg";
+            temp.Password = "pass";
+            temp.RoleId = 1;
+            temp.FullName = "asd";
+            qqs.Users.Add(temp);
+            qqs.SaveChanges();
+
+R:
+var list = db.Products
+    .Select(p => new
+    {
+        p.ProductID,
+        p.PhotoFileName,
+        ProductName = p.ProductNames.ProductName,
+        CategoryName = p.Categories.CategoryName,
+        Description = p.Description,
+        ManufacturerName = p.Manufacturers.ManufacturerName,
+        ProviderName = p.Providers.ProviderName,
+        Unit = p.Unit,
+        Price = p.Price,
+        Discount = p.Discount,
+        FinalPrice = p.Discount > 0 ? (p.Price - (p.Price * p.Discount / 100)) : p.Price,
+        QuantityInStock = p.QuantityInStok,
+        ProviderID = p.ProviderID
+    })
+    .ToList();
+
+
+    ProductsList.ItemsSource = result;
+
+U:
+
+ bd.box temp = qqs.box.FirstOrDefault(u => u.box1 == who.Text);
+ testtext.Text = temp.box3;
+ temp.box3 = "asdasdddzxczxczzxczxdd";
+
+ qqs.SaveChanges();
+
+D:
+
+                    db.Products.Remove(p);
+                    db.SaveChanges();
+
+
+
+==============================================================================
+
+1) словарь - делаем ресурс
+   пишем эту хрень
+ <SolidColorBrush x:Key="PrimaryColor" Color="#FF007ACC"/>
+ <Style TargetType="Button">
+     <Setter Property="Background" Value="{StaticResource PrimaryColor}">
+         
+     </Setter>
+ </Style>
+
+
+в app.xaml:
+<ResourceDictionary>
+   <ResourceDictionary.MergedDictionaries>
+       <ResourceDictionary Source="Dictionary.xaml"/>
+   </ResourceDictionary.MergedDictionaries>
+   </ResourceDictionary>
+
+=================================================================================
+
+2) AAA
+
+ public partial class LoginPage : Page
+ {
+     Entities db = DatabaseContext.GetContext();
+
+     public LoginPage()
+     {
+         InitializeComponent();
+     }
+
+     private void Login_Click(object sender, RoutedEventArgs e)
+     {
+         var user = db.Users
+             .FirstOrDefault(u => u.Login == LoginBox.Text &&
+                                  u.Password == PasswordBox.Password);
+
+         if (user == null)
+         {
+             MessageBox.Show("Неверный логин или пароль.");
+             return;
+         }
+
+         MainWindow.Instance.SetUser(user);
+         MainWindow.Instance.MainFrame.Navigate(new ProductsPage(user));
+     }
+
+     private void Guest_Click(object sender, RoutedEventArgs e)
+     {
+         MainWindow.Instance.SetUser(null);
+         MainWindow.Instance.MainFrame.Navigate(new ProductsPage(null));
+     }
+ }
+
+
+======================================================================================
+
+3)  работа с RBAC:
+
+ <Button x:Name="BackButton"
+         Content="Назад"
+         Style="{StaticResource PrimaryButtonStyle}"
+         Padding="15 5"
+         Margin="0 0 5 0"
+         Click="Back_Click"
+         Visibility="Collapsed"/>
+
+
+
+  public void SetUser(Users user)
+  {
+      _currentUser = user;
+
+      // Гость
+      if (user == null)
+      {
+          UserNameBlock.Text = "Гость";
+          OrdersButton.Visibility = Visibility.Collapsed;
+          return;
+      }
+
+      // Авторизованный пользователь
+      UserNameBlock.Text = user.FullName;
+
+      // Заказы доступны только менеджеру и администратору
+      if (user.RoleID == 1 || user.RoleID == 2)
+          OrdersButton.Visibility = Visibility.Visible;
+      else
+          OrdersButton.Visibility = Visibility.Collapsed;
+  }
+
+=========================================================================================
+4) content:
+ <ListView Grid.Row="2"
+           x:Name="ProductsList"
+           Margin="10"
+           MouseDoubleClick="ProductsList_MouseDoubleClick">
+
+
+     <ListView.ItemTemplate>
+         <DataTemplate>
+
+             <Border BorderThickness="1"
+                     BorderBrush="Black"
+                     Padding="10"
+                     Margin="5"
+                     Height="200">
+
+                 
+
+                 <Grid>
+
+                     <Grid.ColumnDefinitions>
+                         <ColumnDefinition Width="150"/>
+                         <ColumnDefinition Width="*"/>
+                         <ColumnDefinition Width="80"/>
+                     </Grid.ColumnDefinitions>
+
+                     <Image Grid.Column="0"
+                            Width="140" Height="140"
+                            Source="/picture.png"/>
+
+                     <StackPanel Grid.Column="1" Margin="10">
+
+                         <TextBlock Text="{Binding ProductName}" FontWeight="Bold"/>
+                         <TextBlock Text="{Binding CategoryName}" FontStyle="Italic"/>
+
+                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+
+                         <TextBlock Text="Производитель:"/>
+                         <TextBlock Text="{Binding ManufacturerName}"/>
+
+                         <TextBlock Text="Поставщик:"/>
+                         <TextBlock Text="{Binding ProviderName}"/>
+
+                         <StackPanel Orientation="Horizontal">
+
+                             <TextBlock Text="{Binding Price}" Foreground="Red">
+                                 <TextBlock.Style>
+                                     <Style TargetType="TextBlock">
+
+                                         <Style.Triggers>
+
+                                             <DataTrigger Binding="{Binding Discount}" Value="0">
+                                                 <Setter Property="TextDecorations" Value="{x:Null}"/>
+                                             </DataTrigger>
+
+                                         </Style.Triggers>
+
+                                         <Setter Property="TextDecorations" Value="Strikethrough"/>
+
+                                     </Style>
+                                 </TextBlock.Style>
+                             </TextBlock>
+
+                             <TextBlock Text="{Binding FinalPrice}" Margin="10 0 0 0"/>
+
+                         </StackPanel>
+
+                         <TextBlock Text="Остаток:"/>
+                         <TextBlock Text="{Binding QuantityInStock}"/>
+
+                     </StackPanel>
+
+                     <TextBlock Grid.Column="2"
+                                Text="{Binding Discount}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"/>
+
+                 </Grid>
+
+             </Border>
+
+         </DataTemplate>
+     </ListView.ItemTemplate>
+ </ListView>
